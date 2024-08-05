@@ -25,7 +25,7 @@ def get_domain(url):
 def sanitize_path(path):
     return slugify(path)
 
-def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver):
+def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern):
     if url in visited_urls:
         return
 
@@ -57,7 +57,7 @@ def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visi
         links = soup.find_all('a', href=True)
         for link in links:
             absolute_url = urljoin(url, link['href'])
-            if should_crawl(start_url, absolute_url, mode) and absolute_url not in visited_urls:
+            if should_crawl(start_url, absolute_url, mode, include_pattern, exclude_pattern) and absolute_url not in visited_urls:
                 urls_to_visit.put(absolute_url)
 
         visited_urls.add(url)
@@ -65,9 +65,17 @@ def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visi
     except Exception as e:
         print(f"Error crawling {url}: {str(e)}")
 
-def should_crawl(start_url, url, mode):
+def should_crawl(start_url, url, mode, include_pattern, exclude_pattern):
     start_parsed = urlparse(start_url)
     url_parsed = urlparse(url)
+    
+    # Check if the URL matches the include pattern (if provided)
+    if include_pattern and not re.search(include_pattern, url):
+        return False
+    
+    # Check if the URL matches the exclude pattern (if provided)
+    if exclude_pattern and re.search(exclude_pattern, url):
+        return False
     
     if mode == CrawlMode.DEFAULT:
         return url.startswith(start_url)
@@ -78,7 +86,7 @@ def should_crawl(start_url, url, mode):
     else:
         return False
 
-def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode):
+def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern):
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run in headless mode
     driver = webdriver.Chrome(options=chrome_options)
@@ -88,12 +96,12 @@ def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode):
             url = urls_to_visit.get()
             if url is None:
                 break
-            crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver)
+            crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern)
             urls_to_visit.task_done()
     finally:
         driver.quit()
 
-def crawl_website(start_url, num_threads=5, mode=CrawlMode.DEFAULT):
+def crawl_website(start_url, num_threads=5, mode=CrawlMode.DEFAULT, include_pattern=None, exclude_pattern=None):
     visited_urls = set()
     urls_to_visit = Queue()
     urls_to_visit.put(start_url)
@@ -105,7 +113,7 @@ def crawl_website(start_url, num_threads=5, mode=CrawlMode.DEFAULT):
 
     threads = []
     for _ in range(num_threads):
-        t = threading.Thread(target=worker, args=(start_url, output_folder, domain, visited_urls, urls_to_visit, mode))
+        t = threading.Thread(target=worker, args=(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern))
         t.start()
         threads.append(t)
 
@@ -117,4 +125,10 @@ def crawl_website(start_url, num_threads=5, mode=CrawlMode.DEFAULT):
     for t in threads:
         t.join()
 
-crawl_website("https://rarediseases.info.nih.gov/diseases", mode=CrawlMode.DEFAULT)
+# Example usage:
+crawl_website(
+    "https://rarediseases.info.nih.gov/diseases",
+    mode=CrawlMode.DEFAULT,
+    include_pattern=r"/diseases/",  # Only crawl URLs containing "/diseases/"
+    exclude_pattern=r""  # Exclude URLs ending with .pdf, .jpg, or .png
+)
