@@ -25,7 +25,7 @@ def get_domain(url):
 def sanitize_path(path):
     return slugify(path)
 
-def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern):
+def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern, location):
     if url in visited_urls:
         return
 
@@ -48,7 +48,7 @@ def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visi
 
         # Save text content to a file
         file_name = f"{sanitize_path(url)}.txt"
-        file_path = os.path.join(output_folder, file_name)
+        file_path = os.path.join(location, output_folder, file_name)
         print(f"Crawled: {url} -> {file_path}")
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(text_content)
@@ -86,7 +86,7 @@ def should_crawl(start_url, url, mode, include_pattern, exclude_pattern):
     else:
         return False
 
-def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern):
+def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern, location):
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run in headless mode
     driver = webdriver.Chrome(options=chrome_options)
@@ -96,12 +96,12 @@ def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, 
             url = urls_to_visit.get()
             if url is None:
                 break
-            crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern)
+            crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern, location)
             urls_to_visit.task_done()
     finally:
         driver.quit()
 
-def crawl_website(start_url, num_threads=5, mode=CrawlMode.DEFAULT, include_pattern=None, exclude_pattern=None):
+def crawl_website(start_url, num_threads=5, location=".", mode=CrawlMode.DEFAULT, include_pattern=None, exclude_pattern=None):
     visited_urls = set()
     urls_to_visit = Queue()
     urls_to_visit.put(start_url)
@@ -113,7 +113,7 @@ def crawl_website(start_url, num_threads=5, mode=CrawlMode.DEFAULT, include_patt
 
     threads = []
     for _ in range(num_threads):
-        t = threading.Thread(target=worker, args=(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern))
+        t = threading.Thread(target=worker, args=(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern, location))
         t.start()
         threads.append(t)
 
@@ -129,6 +129,7 @@ def crawl_website(start_url, num_threads=5, mode=CrawlMode.DEFAULT, include_patt
 crawl_website(
     "https://rarediseases.info.nih.gov/diseases",
     mode=CrawlMode.DEFAULT,
+    location=".",
     include_pattern = r"/diseases",  # Only crawl URLs containing "/diseases",
     exclude_pattern=r"(\.pdf|\.jpg|\.png)$"  # Exclude URLs ending with .pdf, .jpg, or .png
 )
