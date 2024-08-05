@@ -32,7 +32,7 @@ crawl_website(
     exclude_pattern=r"(\.pdf|\.jpg|\.png)$"  # Exclude URLs ending with .pdf, .jpg, or .png
 )
 ```
-## Modes Are Available
+## Crawl Modes Available
 
 CrawlMode.DEFAULT, CrawlMode.HOST_ONLY, CrawlMode.SUBDOMAINS
     
