@@ -28,6 +28,7 @@ pip install requests beautifulsoup4 selenium python-slugify
 crawl_website(
     "https://rarediseases.info.nih.gov/diseases",
     mode=CrawlMode.DEFAULT,
+    location=".",
     include_pattern = r"/diseases",  # Only crawl URLs containing "/diseases",
     exclude_pattern=r"(\.pdf|\.jpg|\.png)$"  # Exclude URLs ending with .pdf, .jpg, or .png
 )
