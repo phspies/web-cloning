@@ -18,7 +18,9 @@ This is a multi-threaded web crawler implemented in Python. It uses Selenium Web
 - selenium
 - python-slugify
   
-```pip install requests beautifulsoup4 selenium python-slugify```
+```
+pip install requests beautifulsoup4 selenium python-slugify
+```
 
 ## Usage
 
