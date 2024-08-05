@@ -128,6 +128,7 @@ def crawl_website(start_url, num_threads=5, location=".", mode=CrawlMode.DEFAULT
 # Example usage:
 crawl_website(
     "https://rarediseases.info.nih.gov/diseases",
+    num_threads=5,
     mode=CrawlMode.DEFAULT,
     location=".",
     include_pattern = r"/diseases",  # Only crawl URLs containing "/diseases",
