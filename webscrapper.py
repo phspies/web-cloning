@@ -129,6 +129,5 @@ def crawl_website(start_url, num_threads=5, mode=CrawlMode.DEFAULT, include_patt
 crawl_website(
     "https://rarediseases.info.nih.gov/diseases",
     mode=CrawlMode.DEFAULT,
-    include_pattern=r"/diseases/",  # Only crawl URLs containing "/diseases/"
-    exclude_pattern=r""  # Exclude URLs ending with .pdf, .jpg, or .png
+    include_pattern=r"/diseases",  # Only crawl URLs containing "/diseases"
 )
