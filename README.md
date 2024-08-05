@@ -20,7 +20,13 @@ This is a multi-threaded web crawler implemented in Python. It uses Selenium Web
 
 ## Usage
 
-crawl_website("https://rarediseases.info.nih.gov/diseases", mode=CrawlMode.DEFAULT)
+``
+crawl_website(
+    "https://rarediseases.info.nih.gov/diseases",
+    mode=CrawlMode.DEFAULT,
+    include_pattern = r"/diseases",  # Only crawl URLs containing "/diseases",
+    exclude_pattern=r"(\.pdf|\.jpg|\.png)$"  # Exclude URLs ending with .pdf, .jpg, or .png
+)
 
 ## Modes Are Available
 
