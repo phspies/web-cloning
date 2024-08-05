@@ -17,3 +17,17 @@ This is a multi-threaded web crawler implemented in Python. It uses Selenium Web
 - beautifulsoup4
 - selenium
 - python-slugify
+
+## Usage
+
+crawl_website("https://rarediseases.info.nih.gov/diseases", mode=CrawlMode.DEFAULT)
+
+## Modes Are Available
+
+CrawlMode.DEFAULT = 1
+CrawlMode.HOST_ONLY = 2
+CrawlMode.SUBDOMAINS = 3
+    
+- Default: Limit crawling to web pages that belong to the same host and with the same initial URL path. For example, with a seed URL of "https://aws.amazon.com/bedrock/" then only this path and web pages that extend from this path will be crawled, like "https://aws.amazon.com/bedrock/agents/". Sibling URLs like "https://aws.amazon.com/ec2/" are not crawled, for example.
+- Host only: Limit crawling to web pages that belong to the same host. For example, with a seed URL of "https://aws.amazon.com/bedrock/", then web pages with "https://docs.aws.amazon.com" will also be crawled, like "https://aws.amazon.com/ec2".
+- Subdomains: Include crawling of any web page that has the same primary domain as the seed URL. For example, with a seed URL of "https://aws.amazon.com/bedrock/" then any web page that contains "amazon.com" will be crawled, like "https://www.amazon.com".
