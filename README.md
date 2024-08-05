@@ -7,8 +7,8 @@ This is a multi-threaded web crawler implemented in Python. It uses Selenium Web
 - Multi-threaded crawling for improved performance
 - JavaScript rendering support using Selenium
 - Flexible crawling modes (DEFAULT, HOST_ONLY, SUBDOMAINS)
+- Include and exclude patterns for URL filtering
 - Saves crawled content as text files
-- URL sanitization and proper file naming
 
 ## Requirements
 
@@ -17,6 +17,8 @@ This is a multi-threaded web crawler implemented in Python. It uses Selenium Web
 - beautifulsoup4
 - selenium
 - python-slugify
+  
+```pip install requests beautifulsoup4 selenium python-slugify```
 
 ## Usage
 
