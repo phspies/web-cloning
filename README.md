@@ -27,6 +27,7 @@ pip install requests beautifulsoup4 selenium python-slugify
 ```
 crawl_website(
     "https://rarediseases.info.nih.gov/diseases",
+    num_threads=5,
     mode=CrawlMode.DEFAULT,
     location=".",
     include_pattern = r"/diseases",  # Only crawl URLs containing "/diseases",
