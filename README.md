@@ -24,9 +24,7 @@ crawl_website("https://rarediseases.info.nih.gov/diseases", mode=CrawlMode.DEFAU
 
 ## Modes Are Available
 
-CrawlMode.DEFAULT = 1
-CrawlMode.HOST_ONLY = 2
-CrawlMode.SUBDOMAINS = 3
+CrawlMode.DEFAULT, CrawlMode.HOST_ONLY, CrawlMode.SUBDOMAINS
     
 - Default: Limit crawling to web pages that belong to the same host and with the same initial URL path. For example, with a seed URL of "https://aws.amazon.com/bedrock/" then only this path and web pages that extend from this path will be crawled, like "https://aws.amazon.com/bedrock/agents/". Sibling URLs like "https://aws.amazon.com/ec2/" are not crawled, for example.
 - Host only: Limit crawling to web pages that belong to the same host. For example, with a seed URL of "https://aws.amazon.com/bedrock/", then web pages with "https://docs.aws.amazon.com" will also be crawled, like "https://aws.amazon.com/ec2".
