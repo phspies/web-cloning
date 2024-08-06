@@ -43,8 +43,8 @@ def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visi
         # Parse the page with BeautifulSoup
         soup = BeautifulSoup(page_source, 'html.parser')
 
-        # Extract text content
-        text_content = soup.get_text(separator='\n', strip=True)
+        # Extract text content from the <body</body> tag
+        text_content = soup.find('body').get_text(separator='\n', strip=True)
 
         # Save text content to a file
         file_name = f"{sanitize_path(url)}.txt"
@@ -130,7 +130,7 @@ crawl_website(
     "https://rarediseases.info.nih.gov/diseases",
     num_threads=5,
     mode=CrawlMode.DEFAULT,
-    location=".",
+    location="..",
     include_pattern = r"/diseases",  # Only crawl URLs containing "/diseases",
     exclude_pattern=r"(\.pdf|\.jpg|\.png)$"  # Exclude URLs ending with .pdf, .jpg, or .png
 ) 
