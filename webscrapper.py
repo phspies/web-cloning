@@ -25,7 +25,7 @@ def get_domain(url):
 def sanitize_path(path):
     return slugify(path)
 
-def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern):
+def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern, crawled_files):
     if url in visited_urls:
         return
 
@@ -52,6 +52,8 @@ def crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visi
         print(f"Crawled: {url} -> {file_path}")
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(text_content)
+        
+        crawled_files.add(file_name)
 
         # Find all links on the page
         links = soup.find_all('a', href=True)
@@ -86,7 +88,7 @@ def should_crawl(start_url, url, mode, include_pattern, exclude_pattern):
     else:
         return False
 
-def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern):
+def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern, crawled_files):
     chrome_options = Options()
     chrome_options.add_argument("--headless")  # Run in headless mode
     driver = webdriver.Chrome(options=chrome_options)
@@ -96,7 +98,7 @@ def worker(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, 
             url = urls_to_visit.get()
             if url is None:
                 break
-            crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern)
+            crawl_page(start_url, url, output_folder, domain, visited_urls, urls_to_visit, mode, driver, include_pattern, exclude_pattern, crawled_files)
             urls_to_visit.task_done()
     finally:
         driver.quit()
@@ -111,9 +113,14 @@ def crawl_website(start_url, num_threads=5, location=".", mode=CrawlMode.DEFAULT
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
 
+    # Get existing files in the output folder
+    existing_files = set(os.listdir(output_folder))
+
+    crawled_files = set()
+
     threads = []
     for _ in range(num_threads):
-        t = threading.Thread(target=worker, args=(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern))
+        t = threading.Thread(target=worker, args=(start_url, output_folder, domain, visited_urls, urls_to_visit, mode, include_pattern, exclude_pattern, crawled_files))
         t.start()
         threads.append(t)
 
@@ -125,6 +132,20 @@ def crawl_website(start_url, num_threads=5, location=".", mode=CrawlMode.DEFAULT
     for t in threads:
         t.join()
 
+    # Calculate counters
+    total_files = len(crawled_files)
+    new_files = len(crawled_files - existing_files)
+    deleted_files = len(existing_files - crawled_files)
+
+    # Delete files that were not found in the crawl process
+    for file_to_delete in existing_files - crawled_files:
+        os.remove(os.path.join(output_folder, file_to_delete))
+
+    print(f"Crawl completed.")
+    print(f"Total files: {total_files}")
+    print(f"New files: {new_files}")
+    print(f"Deleted files: {deleted_files}")
+
 # Example usage:
 crawl_website(
     "https://rarediseases.info.nih.gov/diseases",
@@ -133,4 +154,4 @@ crawl_website(
     location="..",
     include_pattern = r"/diseases",  # Only crawl URLs containing "/diseases",
     exclude_pattern=r"(\.pdf|\.jpg|\.png)$"  # Exclude URLs ending with .pdf, .jpg, or .png
-) 
+)

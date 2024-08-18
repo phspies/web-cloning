@@ -9,6 +9,7 @@ This is a multi-threaded web crawler implemented in Python. It uses Selenium Web
 - Flexible crawling modes (DEFAULT, HOST_ONLY, SUBDOMAINS)
 - Include and exclude patterns for URL filtering
 - Saves crawled content as text files
+- Cleans folder from old content not discovered in the crawl
 
 ## Requirements
 
