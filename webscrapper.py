@@ -141,7 +141,7 @@ def crawl_website(start_url, num_threads=5, location=".", mode=CrawlMode.DEFAULT
     for file_to_delete in existing_files - crawled_files:
         os.remove(os.path.join(output_folder, file_to_delete))
 
-    print(f"Crawl completed.")
+    print(f"Crawl completed for {start_url}")
     print(f"Total files: {total_files}")
     print(f"New files: {new_files}")
     print(f"Deleted files: {deleted_files}")
